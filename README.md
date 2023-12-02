@@ -20,6 +20,10 @@ pip install flusim
 
 To customize upon this package, clone this repository, and run `pip install .` to initialize.
 
+## Usage
+
+For usage, please refer to this [link](https://github.com/ZebraAlgebra/flusim/blob/main/app/README.md).
+
 ## Problem Definition
 
 The **flu-spread problem** is defined as follows.
@@ -39,6 +43,4 @@ then the problem is to calculate the expectation, variance of:
 1. the end date of flu
 2. the number of sick people in each day
 
-This problem can be formulated as a Markov process,
-and simulations, solvers can be designed to solve this
-question.
+This problem can be formulated as a Markov process, and simulations, solvers can be designed to solve this question.
