@@ -15,7 +15,7 @@ or simulate a flu spread multiple times and plot the computed confidence interva
 To use this package, run
 
 ```bash
-pip install flusim
+pip install -i https://test.pypi.org/simple/ flusim==0.0.1
 ```
 
 To customize upon this package, clone this repository, and run `pip install .` to initialize.
