@@ -16,7 +16,8 @@ This package contains the following 3 core functionalities.
    - graphing the confidence intervals of these multiple period simulations are also given
 
 3. Numerical / Exact Solvers: only for small problem size (where `(n + 1) ** d` isn't too large, with `n, d` being population size, flu-stay length)
-   - solve - via the formulas from the theory of absorbing Markov chains - the statistics of interest.
+   - solve statistics: via the formulas from the theory of absorbing Markov chains - the expectation, variation of end day, number of people sick each day.
+   - solve probabiliy: the distribution of number of people sick each day, the probability that flu end at some day.
 
 ## Using `flusim`
 
@@ -111,7 +112,27 @@ A few notes:
    - When the second option of `stat` is `"T"`, the value is the conditional expected value with condition that the flu simulation ends before user-supplied `max_days` reached, as other results are simply rejected.
 2. For `solve`: For large problem size, it is likely that this will throw a memory allocation error, as there will be too many states to consider.
 
-### 5 Visualization Functionality
+### 5 Probability and Distribution Solver
+
+Supported classes: `FluProblemSolver`.
+
+To solve for distribution of number of sick people at some day, the syntax is:
+
+```python
+env.solve_dist() # distribution of number of sick people at some day
+env.solve_T_prob() # probability that flu ends at some day
+```
+
+The default parameters (in order are):
+
+```python
+init_sick: int = 1,
+day: int = 1
+```
+
+The output for `solve_dist()` is an numpy array. while the output for `solve_T_prob` is a float (`np.float64`).
+
+### 6 Visualization Functionality
 
 Supported classes: `FluProblemSinglePeriod`, `FluProblemMultiplePeriod`.
 

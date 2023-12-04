@@ -68,17 +68,59 @@ class FluProblemSolver(FluProblemBase):
             )
         self.vec_t2 = np.linalg.solve(aug, self.vec_t1)
 
-    def solve(
+    def solve_dist(
+            self,
+            init_sick: int = 1,
+            day: int = 1,
+    ) -> np.array:
+        M = np.linalg.matrix_power(self.M_transition, day)
+        init_i = self._get_init_index(init_sick)
+        vec_init = np.zeros(self.n_states, dtype=np.float64)
+        vec_init[init_i] = 1
+        res = vec_init @ M @ self._get_sparse_weight_matrix()
+        return res
+
+    def solve_T_prob(
+            self,
+            init_sick: int = 1,
+            day: int = 1,
+    ) -> np.float64:
+        """
+        Solves probability of flu ending on given day
+
+        """
+        if not init_sick > 0:
+            raise ValueError("violation of condition\
+                                'init_Sick > 0'")
+        if day <= 0:
+            return 0
+        # get power of a matrix
+        aug = self.M_transition[1:, 1:]
+        M = np.linalg.matrix_power(aug, day - 1)
+        # get the special column
+        vec_absorb = self.M_transition[1:, 0]
+        # get initial distribution
+        init_i = self._get_init_index(init_sick)
+        vec_init = np.zeros(self.n_states, dtype=np.float64)
+        vec_init[init_i] = 1
+        return vec_init[1:] @ M @ vec_absorb
+
+    def solve_stat(
             self,
             init_sick: int = 1,
             stat: Tuple[str, str | int] = ("Exp", "T")
             ) -> np.float64:
+        """
+        Solve expectation, variation of flu end
+        or number of sick people each day
+
+        """
         if stat[0] not in ("Exp", "Var"):
             raise ValueError("violation of condition\
                                 'stat[0] in ('Exp', 'Var')'")
-        if type(stat[1]) is int and not 0 < stat[1]:
+        if type(stat[1]) is int and not 0 <= stat[1]:
             raise ValueError("violation of condition\
-                                '0 < stat[1] when type is int'")
+                                '0 <= stat[1] when type is int'")
         if type(stat[1]) is str and stat[1] != "T":
             raise ValueError("violation of condition\
                                 'stat[1] == `T` when type is not int'")
@@ -95,15 +137,27 @@ class FluProblemSolver(FluProblemBase):
                 return self._solve_day_var(init_sick, stat[1])
 
     def _solve_T_exp(self, init_sick=1) -> np.float64:
+        """
+        Helper function for solve_stat
+
+        """
         init_i = self._get_init_index(init_sick) - 1
         return self.vec_t1[init_i]
 
     def _solve_T_var(self, init_sick=1) -> np.float64:
+        """
+        Helper function for solve_stat
+
+        """
         init_i = self._get_init_index(init_sick) - 1
         vec_res = 2 * self.vec_t2 - self.vec_t1 - self.vec_t1 ** 2
         return vec_res[init_i]
 
     def _solve_day_exp(self, init_sick=1, day=1) -> np.float64:
+        """
+        Helper function for solve_stat
+
+        """
         M = np.linalg.matrix_power(self.M_transition, day)
         init_i = self._get_init_index(init_sick)
         vec_init = np.zeros(self.n_states, dtype=np.float64)
@@ -111,6 +165,10 @@ class FluProblemSolver(FluProblemBase):
         return vec_init.T @ M @ self.vec_weights
 
     def _solve_day_var(self, init_sick=1, day=1) -> np.float64:
+        """
+        Helper function for solve_stat
+
+        """
         M = np.linalg.matrix_power(self.M_transition, day)
         init_i = self._get_init_index(init_sick)
         vec_init = np.zeros(self.n_states, dtype=np.float64)
@@ -119,6 +177,11 @@ class FluProblemSolver(FluProblemBase):
             (vec_init.T @ M @ self.vec_weights) ** 2
 
     def _gen_partitions(self) -> Tuple[int, ...]:
+        """
+        Generates combinations of self.n_sick_duration - 1
+        non-negative integers that sums to <= self.n_pop_size
+
+        """
         partitions = []
         q = [(tuple(), self.n_pop_size)]
         while q:
@@ -130,6 +193,21 @@ class FluProblemSolver(FluProblemBase):
         return partitions
 
     def _get_init_index(self, init_sick=1) -> int:
+        """
+        Get index of a specified initial state specified by
+        initial number of people sick
+
+        """
         init_state = tuple([0 if i > 0 else init_sick
                             for i in range(self.n_sick_duration)])
         return self.encoder.inverse[init_state]
+
+    def _get_sparse_weight_matrix(self) -> np.ndarray:
+        """
+        Generate a matrix for computation of distribution
+
+        """
+        result = np.zeros((self.n_states, self.n_pop_size + 1))
+        for i, v in enumerate(self.vec_weights):
+            result[i, int(v)] = 1
+        return result

@@ -15,14 +15,21 @@ or simulate a flu spread multiple times and plot the computed confidence interva
 To use this package, run
 
 ```bash
-pip install -i https://test.pypi.org/simple/ flusim==0.0.1
+pip install -i https://test.pypi.org/simple/ flusim
 ```
 
-To customize upon this package, clone this repository, and run `pip install .` to initialize.
+To customize upon this package, clone this repository, and run:
+
+```bash
+python setup.py bdist_wheel sdist
+pip install .
+```
 
 ## Usage
 
 For usage, please refer to this [link](https://github.com/ZebraAlgebra/flusim/blob/main/app/README.md).
+
+For a demo, you may refer to this [Jupyter notbook](https://github.com/ZebraAlgebra/flusim/blob/main/notebooks/package_demo.ipynb) or preview the [generated HTML file](https://htmlpreview.github.io/?https://github.com/ZebraAlgebra/flusim/blob/main/notebooks/package_demo.html).
 
 ## Problem Definition
 
@@ -31,7 +38,7 @@ Suppose inside a closed environment, there are:
 
 1. `n + 1` people in it, labeled `0, 1, ..., n`
 2. no people sick before day `0`, and `k` people
-   sick at day `1`
+   sick at day `0`
 3. on each day, a sick person has a probability `p`
    contaminating a healthy person
 4. these events are independent

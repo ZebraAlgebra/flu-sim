@@ -8,11 +8,20 @@ from bokeh.plotting import figure, show
 
 
 def _get_diff(X: np.array, alpha: float) -> np.float64:
+    """
+    Computes half length of confidence interval
+
+    """
     n = len(X)
     return sp.stats.t.ppf(1 - alpha / 2, n - 1) * sqrt(np.std(X, ddof=1) / n)
 
 
 def _get_total_sick(data: np.ndarray, n_sick_duration: int) -> np.ndarray:
+    """
+    Converts result of newly sick people each day
+    to result of number of sick people each day
+
+    """
     n = data.shape[1]
     for i in range(1, n):
         data[:, i] += data[:, i - 1]
